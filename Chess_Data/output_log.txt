@@ -1,0 +1,195 @@
+Mono path[0] = 'C:/Users/James Nhan/Documents/Unity Projects/Chess/Chess_Data/Managed'
+Mono path[1] = 'C:/Users/James Nhan/Documents/Unity Projects/Chess/Chess_Data/Mono'
+Mono config path = 'C:/Users/James Nhan/Documents/Unity Projects/Chess/Chess_Data/Mono/etc'
+PlayerConnection initialized from C:/Users/James Nhan/Documents/Unity Projects/Chess/Chess_Data (debug = 0)
+PlayerConnection initialized network socket : 0.0.0.0 55316
+Multi-casting "[IP] 192.168.0.8 [Port] 55316 [Flags] 2 [Guid] 1201528974 [EditorId] 2684146574 [Version] 1048832 [Id] WindowsPlayer(DESKTOP-DEQC7D7) [Debug] 0" to [225.0.0.222:54997]...
+PlayerConnection already initialized - listening to [192.168.0.8:55316]
+Initialize engine version: 5.3.4f1 (fdbb5133b820)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: AMD Radeon (TM) R9 390 Series (ID=0x67b0)
+    Vendor:   ATI
+    VRAM:     8170 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+- Completed reload, in  0.087 seconds
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\Users\James Nhan\Documents\Unity Projects\Chess\Chess_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 5760x1080 at -1920,0
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.515321 ms
+Knight B1-C3
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Pawn G7-G5
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+ChessMain:NextPlayerTurn() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:23)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:69)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Pawn D2-D4
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Bishop F8-H6
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+ChessMain:NextPlayerTurn() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:23)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:69)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Knight G1-H3
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Pawn E7-E6
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+ChessMain:NextPlayerTurn() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:23)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:69)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Pawn E2-E4
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Knight B8-C6
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+ChessMain:NextPlayerTurn() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:23)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:69)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Bishop F1-C4
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Pawn D7-D6
+UnityEngine.DebugLogHandler:Internal_Log(LogType, String, Object)
+UnityEngine.DebugLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Game:DoMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Game.cs:142)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:59)
+ChessMain:NextPlayerTurn() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:23)
+ChessMain:MakeMove(String, String) (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\ChessMain.cs:69)
+Square:OnMouseDown() (at C:\Users\James Nhan\Documents\Unity Projects\Chess\Assets\Scripts\Square.cs:39)
+UnityEngine.GameObject:SendMessage(String, Object, SendMessageOptions)
+UnityEngine.HitInfo:SendMessage(String) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:18)
+UnityEngine.SendMouseEvents:SendEvents(Int32, HitInfo) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:164)
+UnityEngine.SendMouseEvents:DoSendMouseEvents(Int32) (at C:\buildslave\unity\build\Runtime\Export\MouseEvents.cs:144)
+ 
+(Filename: C:/Users/James Nhan/Documents/Unity Projects/Chess/Assets/Scripts/Game.cs Line: 142)
+
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 70fc -> priority: 1 
+  Thread -> id: 2e78 -> priority: 1 
