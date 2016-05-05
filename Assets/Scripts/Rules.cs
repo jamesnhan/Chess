@@ -167,6 +167,10 @@ public class Rules {
         this.board[move.StartCell].Piece.MoveCount++;
         this.board[move.EndCell].Piece = this.board[move.StartCell].Piece;
         this.board[move.StartCell].Piece = new Piece(Piece.PieceType.Empty);
+
+        // Update the pieces
+        this.game.GetBoardSquare(move.StartCell.ToString()).UpdatePiece();
+        this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
     }
 
     /// <summary>
@@ -208,8 +212,10 @@ public class Rules {
 
         if (move.PromotedPiece == null) {
             this.board[move.EndCell].Piece = new Piece(Piece.PieceType.Queen, this.board[move.EndCell].Piece.Side);
+            this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
         } else {
             this.board[move.EndCell].Piece = move.PromotedPiece;
+            this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
         }
     }
 
@@ -225,6 +231,9 @@ public class Rules {
         } else {
             enPassantCell = this.board.TopCell(move.EndCell);
         }
+
+        // Update the cell
+        this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
 
         move.EnPassantPiece = enPassantCell.Piece;
         enPassantCell.Piece = new Piece(Piece.PieceType.Empty);
@@ -252,6 +261,10 @@ public class Rules {
                 this.board[source].Piece.MoveCount--;
                 this.board[target].Piece = board[source].Piece;
                 this.board[source].Piece = new Piece(Piece.PieceType.Empty);
+
+                // Update the rooks
+                this.game.GetBoardSquare(this.board[source].ToString()).UpdatePiece();
+                this.game.GetBoardSquare(this.board[target].ToString()).UpdatePiece();
             } else {
                 Cell source = this.board.RightCell(move.EndCell);
                 Cell target = this.board[move.StartCell.Row, 1];
@@ -259,6 +272,10 @@ public class Rules {
                 this.board[source].Piece.MoveCount--;
                 this.board[target].Piece = board[source].Piece;
                 this.board[source].Piece = new Piece(Piece.PieceType.Empty);
+
+                // Update the rooks
+                this.game.GetBoardSquare(this.board[source].ToString()).UpdatePiece();
+                this.game.GetBoardSquare(this.board[target].ToString()).UpdatePiece();
             }
         }
 
@@ -273,6 +290,9 @@ public class Rules {
                 enPassantCell = this.board.TopCell(move.EndCell);
             }
 
+            // Update the cell
+            this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
+
             enPassantCell.Piece = move.EnPassantPiece;
         }
     }
@@ -285,6 +305,10 @@ public class Rules {
         this.board[move.EndCell].Piece = move.CapturedPiece;
         this.board[move.StartCell].Piece = move.Piece;
         this.board[move.StartCell].Piece.MoveCount--;
+
+        // Update the cells
+        this.game.GetBoardSquare(move.StartCell.ToString()).UpdatePiece();
+        this.game.GetBoardSquare(move.EndCell.ToString()).UpdatePiece();
     }
 
     /// <summary>

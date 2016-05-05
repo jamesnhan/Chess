@@ -189,9 +189,8 @@ public class Game : MonoBehaviour {
             // Check for check mate
             if (this.IsCheckMate(currentTurn)) {
                 string movesList = "";
-                Stack moveHistoryCopy = (Stack)this.moveHistory.Clone();
                 while (moveHistory.Count > 0) {
-                    movesList = ((Move)moveHistoryCopy.Pop()) + ", " + movesList;
+                    movesList = ((Move)moveHistory.Pop()) + ", " + movesList;
                 }
                 Debug.Log(movesList);
                 Debug.Log("CHECK MATE!");
@@ -201,9 +200,8 @@ public class Game : MonoBehaviour {
             // Check for stale mate
             if (this.IsStaleMate(currentTurn)) {
                 string movesList = "";
-                Stack moveHistoryCopy = (Stack)this.moveHistory.Clone();
                 while (moveHistory.Count > 0) {
-                    movesList = ((Move)moveHistoryCopy.Pop()) + ", " + movesList;
+                    movesList = ((Move)moveHistory.Pop()) + ", " + movesList;
                 }
                 Debug.Log(movesList);
                 Debug.Log("STALE MATE!");
@@ -213,9 +211,8 @@ public class Game : MonoBehaviour {
             // Check for fifty move draws
             if (this.IsFiftyMoveDraw()) {
                 string movesList = "";
-                Stack moveHistoryCopy = (Stack)this.moveHistory.Clone();
                 while (moveHistory.Count > 0) {
-                    movesList = ((Move)moveHistoryCopy.Pop()) + ", " + movesList;
+                    movesList = ((Move)moveHistory.Pop()) + ", " + movesList;
                 }
                 Debug.Log(movesList);
                 Debug.Log("FIFTY MOVE DRAW!");
