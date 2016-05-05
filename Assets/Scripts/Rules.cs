@@ -1,656 +1,998 @@
+/// <summary>
+/// The rules of a chess game
+/// </summary>
 using System;
 using System.Collections;
 
 public class Rules {
-    private Board m_Board;
-    private Game m_Game;
+    /// <summary>
+    /// The game board
+    /// </summary>
+    private Board board;
+
+    /// <summary>
+    /// The game instance
+    /// </summary>
+    private Game game;
+
+    /// <summary>
+    /// Create a new set of rules for this board and game
+    /// </summary>
+    /// <param name="board">The board</param>
+    /// <param name="game">The game</param>
     public Rules(Board board, Game game) {
-        m_Board = board;
-        m_Game = game;
+        this.board = board;
+        this.game = game;
     }
-    public Board ChessBoard {
-        get {
-            return m_Board;
-        }
-    }
-    public Game ChessGame {
-        get {
-            return m_Game;
-        }
-    }
-    public bool IsCheckMate(Side.SideType PlayerSide) {
-        if (IsUnderCheck(PlayerSide) && GetCountOfPossibleMoves(PlayerSide) == 0)
+
+    /// <summary>
+    /// Check if the player is under checkmate
+    /// </summary>
+    /// <param name="playerSide">The player</param>
+    /// <returns>True if the player is in checkmate</returns>
+    public bool IsCheckMate(Side.SideType playerSide) {
+        if (this.IsUnderCheck(playerSide) && this.GetCountOfPossibleMoves(playerSide) == 0) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
-    public bool IsStaleMate(Side.SideType PlayerSide) {
-        Stack moves = this.m_Game.MoveHistory.Clone() as Stack;
+
+    /// <summary>
+    /// Check if the player is under stalemate
+    /// </summary>
+    /// <param name="playerSide">The player</param>
+    /// <returns>True if the player is in stalemate</returns>
+    public bool IsStaleMate(Side.SideType playerSide) {
+        if (!this.IsUnderCheck(playerSide) && this.GetCountOfPossibleMoves(playerSide) == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Check if the players are under fifty move draw
+    /// </summary>
+    /// <returns>True if the players are under fifty move draw</returns>
+    public bool IsFiftyMoveDraw() {
+        // Clone the current move history for iteration
+        Stack moves = this.game.MoveHistory.Clone() as Stack;
         bool captureOrPawnMove = false;
         int count = 0;
 
+        // Iterate through the past moves
         while (moves.Count > 0) {
             Move move = moves.Pop() as Move;
             ++count;
+            // If the move is a capture move or the moved piece is a pawn, set it to true
             captureOrPawnMove = captureOrPawnMove || (move.IsCaptureMove() || move.Piece.IsPawn());
+            // If we have gone through over 50 moves and not had a capture or pawn move we draw
             if (count >= 50 && !captureOrPawnMove) {
                 return true;
-            } else if (count >= 50 || captureOrPawnMove) {
+            } else if (captureOrPawnMove) {
+                // If we have a capture or pawn move, break
                 break;
             }
         }
 
-        if (!IsUnderCheck(PlayerSide) && GetCountOfPossibleMoves(PlayerSide) == 0)
-            return true;
-        else
-            return false;
+        return false;
     }
+
+    /// <summary>
+    /// Make a move
+    /// </summary>
+    /// <param name="move"></param>
+    /// <returns>0 if successful, -2 if the move is illegal</returns>
     public int DoMove(Move move) {
+        // Get the list of legal moves
+        ArrayList legalMoves = this.GetLegalMoves(board[move.StartCell]);
 
-        ArrayList LegalMoves = GetLegalMoves(m_Board[move.StartCell]);
-
-        if (!LegalMoves.Contains(m_Board[move.EndCell]))
+        // If the move is not in the list of legal moves return -2
+        if (!legalMoves.Contains(board[move.EndCell])) {
             return -2;
-        SetMoveType(move);
-        ExecuteMove(move);
+        }
+
+        // Set the move type and execute it
+        this.SetMoveType(move);
+        this.ExecuteMove(move);
 
         return 0;
     }
-    public void ExecuteMove(Move move) {
 
+    /// <summary>
+    /// Execute a move
+    /// </summary>
+    /// <param name="move">The move</param>
+    public void ExecuteMove(Move move) {
         switch (move.Type) {
             case Move.MoveType.CaptureMove:
-                DoNormalMove(move);
+                this.DoNormalMove(move);
                 break;
-
             case Move.MoveType.NormalMove:
-                DoNormalMove(move);
+                this.DoNormalMove(move);
                 break;
-
             case Move.MoveType.TowerMove:
-                DoTowerMove(move);
+                this.DoTowerMove(move);
                 break;
-
             case Move.MoveType.PromotionMove:
-                DoPromoMove(move);
+                this.DoPromotionMove(move);
                 break;
-
             case Move.MoveType.EnPassant:
-                DoEnPassantMove(move);
+                this.DoEnPassantMove(move);
                 break;
         }
     }
 
+    /// <summary>
+    /// Set the move type and move information
+    /// </summary>
+    /// <param name="move">The move</param>
     private void SetMoveType(Move move) {
-
+        // The move starts out as a normal move
         move.Type = Move.MoveType.NormalMove;
-        if (move.EndCell.Piece != null && move.EndCell.Piece.Type != Piece.PieceType.Empty)
+
+        // If the move would kill a piece, make it a capture type
+        if (move.EndCell.Piece != null && move.EndCell.Piece.Type != Piece.PieceType.Empty) {
             move.Type = Move.MoveType.CaptureMove;
+        }
+
+        // If the move is a king and it is moving more than one space, it's a tower move
         if (move.StartCell.Piece != null && move.StartCell.Piece.Type == Piece.PieceType.King) {
-            if (Math.Abs(move.EndCell.Column - move.StartCell.Column) > 1)
+            if (Math.Abs(move.EndCell.Column - move.StartCell.Column) > 1) {
                 move.Type = Move.MoveType.TowerMove;
-        }
-        if (move.StartCell.Piece != null && move.StartCell.Piece.Type == Piece.PieceType.Pawn) {
-
-            if (move.EndCell.Row == 8 || move.EndCell.Row == 1)
-                move.Type = Move.MoveType.PromotionMove;
-        }
-        if (move.StartCell.Piece != null && move.StartCell.Piece.Type == Piece.PieceType.Pawn) {
-
-            if ((move.EndCell.Piece == null || move.EndCell.Piece.IsEmpty()) && move.StartCell.Column != move.EndCell.Column)
-                move.Type = Move.MoveType.EnPassant;
-        }
-    }
-
-    private void DoNormalMove(Move move) {
-        m_Board[move.StartCell].Piece.MoveCount++;
-        m_Board[move.EndCell].Piece = m_Board[move.StartCell].Piece;
-        m_Board[move.StartCell].Piece = new Piece(Piece.PieceType.Empty);
-    }
-    private void DoTowerMove(Move move) {
-        DoNormalMove(move);
-        if (move.EndCell.Column > move.StartCell.Column) {
-            Cell rockcell = m_Board.RightCell(move.EndCell);
-            Move newmove = new Move(rockcell, m_Board.LeftCell(move.EndCell));
-            DoNormalMove(newmove);
-        } else {
-
-            Cell rockcell = m_Board.LeftCell(move.EndCell);
-            rockcell = m_Board.LeftCell(rockcell);
-            Move newmove = new Move(rockcell, m_Board.RightCell(move.EndCell));
-            DoNormalMove(newmove);
-        }
-    }
-    private void DoPromoMove(Move move) {
-        DoNormalMove(move);
-
-        if (move.PromotedPiece == null)
-            m_Board[move.EndCell].Piece = new Piece(Piece.PieceType.Queen, m_Board[move.EndCell].Piece.Side);
-        else
-            m_Board[move.EndCell].Piece = move.PromotedPiece;
-    }
-    private void DoEnPassantMove(Move move) {
-        Cell EnPassantCell;
-
-        if (move.StartCell.Piece.Side.isWhite())
-            EnPassantCell = m_Board.BottomCell(move.EndCell);
-        else
-            EnPassantCell = m_Board.TopCell(move.EndCell);
-
-        move.EnPassantPiece = EnPassantCell.Piece;
-        EnPassantCell.Piece = new Piece(Piece.PieceType.Empty);
-        DoNormalMove(move);
-    }
-    public void UndoMove(Move move) {
-        if (move.Type == Move.MoveType.CaptureMove || move.Type == Move.MoveType.NormalMove || move.Type == Move.MoveType.PromotionMove)
-            UndoNormalMove(move);
-        if (move.Type == Move.MoveType.TowerMove) {
-            UndoNormalMove(move);
-            if (move.EndCell.Column > move.StartCell.Column) {
-
-                Cell source = m_Board.LeftCell(move.EndCell);
-                Cell target = m_Board[move.StartCell.Row, 8];
-
-                m_Board[source].Piece.MoveCount--;
-                m_Board[target].Piece = m_Board[source].Piece;
-                m_Board[source].Piece = new Piece(Piece.PieceType.Empty);
-            } else {
-
-                Cell source = m_Board.RightCell(move.EndCell);
-                Cell target = m_Board[move.StartCell.Row, 1];
-
-                m_Board[source].Piece.MoveCount--;
-                m_Board[target].Piece = m_Board[source].Piece;
-                m_Board[source].Piece = new Piece(Piece.PieceType.Empty);
             }
         }
-        if (move.Type == Move.MoveType.EnPassant) {
-            Cell EnPassantCell;
 
-            UndoNormalMove(move);
-            if (move.StartCell.Piece.Side.isWhite())
-                EnPassantCell = m_Board.BottomCell(move.EndCell);
-            else
-                EnPassantCell = m_Board.TopCell(move.EndCell);
+        // If the move is a pawn and it is at the end row, it's a promotion move
+        if (move.StartCell.Piece != null && move.StartCell.Piece.Type == Piece.PieceType.Pawn) {
+            if (move.EndCell.Row == 8 || move.EndCell.Row == 1) {
+                move.Type = Move.MoveType.PromotionMove;
+            }
+        }
 
-            EnPassantCell.Piece = move.EnPassantPiece;
+        // If the piece is a move and it is changing columns and the ending space is empty, it's en passant
+        if (move.StartCell.Piece != null && move.StartCell.Piece.Type == Piece.PieceType.Pawn) {
+            if ((move.EndCell.Piece == null || move.EndCell.Piece.IsEmpty()) && move.StartCell.Column != move.EndCell.Column) {
+                move.Type = Move.MoveType.EnPassant;
+            }
         }
     }
-    private void UndoNormalMove(Move move) {
-        m_Board[move.EndCell].Piece = move.CapturedPiece;
-        m_Board[move.StartCell].Piece = move.Piece;
-        m_Board[move.StartCell].Piece.MoveCount--;
+
+    /// <summary>
+    /// Do a normal move
+    /// </summary>
+    /// <param name="move">The move</param>
+    private void DoNormalMove(Move move) {
+        this.board[move.StartCell].Piece.MoveCount++;
+        this.board[move.EndCell].Piece = this.board[move.StartCell].Piece;
+        this.board[move.StartCell].Piece = new Piece(Piece.PieceType.Empty);
     }
-    public bool IsUnderCheck(Side.SideType PlayerSide) {
-        Cell OwnerKingCell = null;
-        ArrayList OwnerCells = m_Board.GetSideCell(PlayerSide);
-        foreach (string CellName in OwnerCells) {
-            if (m_Board[CellName].Piece.Type == Piece.PieceType.King) {
-                OwnerKingCell = m_Board[CellName];
+
+    /// <summary>
+    /// Do a tower move
+    /// </summary>
+    /// <param name="move">The move</param>
+    private void DoTowerMove(Move move) {
+        // First do a normal move to move the king
+        this.DoNormalMove(move);
+
+        // Move the corresponding rook
+        if (move.EndCell.Column > move.StartCell.Column) {
+            Cell rookCell = this.board.RightCell(move.EndCell);
+            Move towerMove = new Move(rookCell, this.board.LeftCell(move.EndCell));
+            this.DoNormalMove(towerMove);
+
+            // Update the rook cells
+            this.game.GetBoardSquare(towerMove.StartCell.ToString()).UpdatePiece();
+            this.game.GetBoardSquare(towerMove.EndCell.ToString()).UpdatePiece();
+        } else {
+            // The left rook is further from the king by one cell
+            Cell rockcell = this.board.LeftCell(move.EndCell);
+            rockcell = this.board.LeftCell(rockcell);
+            Move towerMove = new Move(rockcell, this.board.RightCell(move.EndCell));
+            this.DoNormalMove(towerMove);
+
+            // Update the rook cells
+            this.game.GetBoardSquare(towerMove.StartCell.ToString()).UpdatePiece();
+            this.game.GetBoardSquare(towerMove.EndCell.ToString()).UpdatePiece();
+        }
+    }
+
+    /// <summary>
+    /// Do a promotion move
+    /// </summary>
+    /// <param name="move">The move</param>
+    private void DoPromotionMove(Move move) {
+        this.DoNormalMove(move);
+
+        if (move.PromotedPiece == null) {
+            this.board[move.EndCell].Piece = new Piece(Piece.PieceType.Queen, this.board[move.EndCell].Piece.Side);
+        } else {
+            this.board[move.EndCell].Piece = move.PromotedPiece;
+        }
+    }
+
+    /// <summary>
+    /// Do an enpassant move
+    /// </summary>
+    /// <param name="move">The move</param>
+    private void DoEnPassantMove(Move move) {
+        Cell enPassantCell;
+
+        if (move.StartCell.Piece.Side.IsWhite()) {
+            enPassantCell = this.board.BottomCell(move.EndCell);
+        } else {
+            enPassantCell = this.board.TopCell(move.EndCell);
+        }
+
+        move.EnPassantPiece = enPassantCell.Piece;
+        enPassantCell.Piece = new Piece(Piece.PieceType.Empty);
+        this.DoNormalMove(move);
+    }
+
+    /// <summary>
+    /// Undo a move
+    /// </summary>
+    /// <param name="move">The move</param>
+    public void UndoMove(Move move) {
+        // If it is a capture, normal, or promotion move, first undo the underlying normal move
+        if (move.Type == Move.MoveType.CaptureMove || move.Type == Move.MoveType.NormalMove || move.Type == Move.MoveType.PromotionMove) {
+            this.UndoNormalMove(move);
+        }
+
+        // If the move is a tower move, undo the underlying normal move and then move the rook back
+        if (move.Type == Move.MoveType.TowerMove) {
+            this.UndoNormalMove(move);
+
+            if (move.EndCell.Column > move.StartCell.Column) {
+                Cell source = this.board.LeftCell(move.EndCell);
+                Cell target = this.board[move.StartCell.Row, 8];
+
+                this.board[source].Piece.MoveCount--;
+                this.board[target].Piece = board[source].Piece;
+                this.board[source].Piece = new Piece(Piece.PieceType.Empty);
+            } else {
+                Cell source = this.board.RightCell(move.EndCell);
+                Cell target = this.board[move.StartCell.Row, 1];
+
+                this.board[source].Piece.MoveCount--;
+                this.board[target].Piece = board[source].Piece;
+                this.board[source].Piece = new Piece(Piece.PieceType.Empty);
+            }
+        }
+
+        // If the move is en passant undo the normal move
+        if (move.Type == Move.MoveType.EnPassant) {
+            Cell enPassantCell;
+
+            this.UndoNormalMove(move);
+            if (move.StartCell.Piece.Side.IsWhite()) {
+                enPassantCell = this.board.BottomCell(move.EndCell);
+            } else {
+                enPassantCell = this.board.TopCell(move.EndCell);
+            }
+
+            enPassantCell.Piece = move.EnPassantPiece;
+        }
+    }
+
+    /// <summary>
+    /// Undo a normal move
+    /// </summary>
+    /// <param name="move">The move</param>
+    private void UndoNormalMove(Move move) {
+        this.board[move.EndCell].Piece = move.CapturedPiece;
+        this.board[move.StartCell].Piece = move.Piece;
+        this.board[move.StartCell].Piece.MoveCount--;
+    }
+
+    /// <summary>
+    /// Check if a player is under check
+    /// </summary>
+    /// <param name="playerSide">The player</param>
+    /// <returns>True if the player is under check</returns>
+    public bool IsUnderCheck(Side.SideType playerSide) {
+        Cell kingCell = null;
+        ArrayList ownedCells = this.board.GetSideCell(playerSide);
+
+        // First get the king cell
+        foreach (string cell in ownedCells) {
+            if (this.board[cell].Piece.Type == Piece.PieceType.King) {
+                kingCell = this.board[cell];
                 break;
             }
         }
-        ArrayList EnemyCells = m_Board.GetSideCell((new Side(PlayerSide)).Enemy());
-        foreach (string CellName in EnemyCells) {
-            ArrayList moves = GetPossibleMoves(m_Board[CellName]);
 
-            if (moves.Contains(OwnerKingCell))
+        // Get the enemy cells and all of the possible moves of each enemy cell
+        ArrayList EnemyCells = board.GetSideCell((new Side(playerSide)).Enemy());
+        foreach (string CellName in EnemyCells) {
+            ArrayList moves = this.GetPossibleMoves(this.board[CellName]);
+
+            // If the king cell is in this set, then the player is under check
+            if (moves.Contains(kingCell)) {
                 return true;
+            }
         }
+
         return false;
     }
-    private int GetCountOfPossibleMoves(Side.SideType PlayerSide) {
-        int TotalMoves = 0;
-        ArrayList PlayerCells = m_Board.GetSideCell(PlayerSide);
-        foreach (string CellName in PlayerCells) {
-            ArrayList moves = GetLegalMoves(m_Board[CellName]);
-            TotalMoves += moves.Count;
-        }
-        return TotalMoves;
-    }
-    private bool CauseCheck(Move move) {
-        bool CauseCheck = false;
-        Side.SideType PlayerSide = move.StartCell.Piece.Side.type;
-        ExecuteMove(move);
-        CauseCheck = IsUnderCheck(PlayerSide);
-        UndoMove(move);
 
-        return CauseCheck;
+    /// <summary>
+    /// Get the number of possible moves
+    /// </summary>
+    /// <param name="playerSide">The player</param>
+    /// <returns>The number of possible moves</returns>
+    private int GetCountOfPossibleMoves(Side.SideType playerSide) {
+        int moveCount = 0;
+        ArrayList playerCells = this.board.GetSideCell(playerSide);
+
+        foreach (string cell in playerCells) {
+            ArrayList moves = this.GetLegalMoves(this.board[cell]);
+            moveCount += moves.Count;
+        }
+
+        return moveCount;
     }
+
+    /// <summary>
+    /// Check whether or not a move causes check
+    /// </summary>
+    /// <param name="move">The move</param>
+    /// <returns>True if the move causes check</returns>
+    private bool CausesCheck(Move move) {
+        bool causesCheck = false;
+        Side.SideType playerSide = move.StartCell.Piece.Side.Type;
+
+        // Do the move
+        this.ExecuteMove(move);
+
+        // Check if we're under check
+        causesCheck = this.IsUnderCheck(playerSide);
+
+        // Undo the move
+        this.UndoMove(move);
+
+        return causesCheck;
+    }
+
+    /// <summary>
+    /// Get all the legal moves for a cell
+    /// </summary>
+    /// <param name="source">The cell</param>
+    /// <returns>An ArrayList of all legal moves for a cell</returns>
     public ArrayList GetLegalMoves(Cell source) {
-        ArrayList LegalMoves;
+        ArrayList allPossibleMoves = this.GetPossibleMoves(source);
+        ArrayList movesToRemove = new ArrayList();
 
-        LegalMoves = GetPossibleMoves(source);
-        ArrayList ToRemove = new ArrayList();
-        foreach (Cell target in LegalMoves) {
-
-            if (CauseCheck(new Move(source, target)))
-                ToRemove.Add(target);
-        }
-
-        if (source.Piece.Type == Piece.PieceType.King && IsUnderCheck(source.Piece.Side.type)) {
-            foreach (Cell target in LegalMoves) {
-
-                if (Math.Abs(target.Column - source.Column) > 1)
-                    ToRemove.Add(target);
+        foreach (Cell target in allPossibleMoves) {
+            // If the move will cause this player to go into check, remove it
+            if (this.CausesCheck(new Move(source, target))) {
+                movesToRemove.Add(target);
             }
         }
-        foreach (Cell cell in ToRemove) {
-            LegalMoves.Remove(cell);
+
+        // Remove tower moves if the king is under check
+        if (source.Piece.Type == Piece.PieceType.King && this.IsUnderCheck(source.Piece.Side.Type)) {
+            foreach (Cell target in allPossibleMoves) {
+                if (Math.Abs(target.Column - source.Column) > 1) {
+                    movesToRemove.Add(target);
+                }
+            }
         }
-        return LegalMoves;
+
+        // Remove all cells that are illegal
+        foreach (Cell cell in movesToRemove) {
+            allPossibleMoves.Remove(cell);
+        }
+
+        return allPossibleMoves;
     }
 
-    public ArrayList GenerateAllLegalMoves(Side PlayerSide) {
-        ArrayList TotalMoves = new ArrayList();
-        ArrayList PlayerCells = m_Board.GetSideCell(PlayerSide.type);
+    /// <summary>
+    /// Get all the legal moves
+    /// </summary>
+    /// <param name="playerSide">The player side</param>
+    /// <returns>An ArrayList of all legal moves</returns>
+    public ArrayList GenerateAllLegalMoves(Side playerSide) {
+        ArrayList allLegalMoves = new ArrayList();
+        ArrayList playerCells = this.board.GetSideCell(playerSide.Type);
         Move move;
-        foreach (string CellName in PlayerCells) {
-            ArrayList moves = GetLegalMoves(m_Board[CellName]);
+
+        // Get all of the legal moves for each cell the player owns
+        foreach (string cell in playerCells) {
+            ArrayList moves = this.GetLegalMoves(this.board[cell]);
 
             foreach (Cell dest in moves) {
-                move = new Move(m_Board[CellName], dest);
-                SetMoveType(move);
+                move = new Move(board[cell], dest);
+                this.SetMoveType(move);
 
-                if (move.IsPromoMove())
+                // Set the move's score
+                if (move.IsPromotionMove()) {
                     move.Score = 1000;
-                else if (move.IsCaptureMove())
+                } else if (move.IsCaptureMove()) {
                     move.Score = move.EndCell.Piece.GetWeight();
+                }
 
-                TotalMoves.Add(move);
+                allLegalMoves.Add(move);
             }
         }
 
-        MoveCompare moveCompareObj = new MoveCompare();
-        TotalMoves.Sort(moveCompareObj);
+        // Sort the moves
+        MoveComparer moveCompareObj = new MoveComparer();
+        allLegalMoves.Sort(moveCompareObj);
 
-        return TotalMoves;
+        return allLegalMoves;
     }
 
-    public ArrayList GenerateGoodCaptureMoves(Side PlayerSide) {
-        ArrayList TotalMoves = new ArrayList();
-        ArrayList PlayerCells = m_Board.GetSideCell(PlayerSide.type);
+    /// <summary>
+    /// Get the good capture moves with a score over 100
+    /// </summary>
+    /// <param name="playerSide">The player side</param>
+    /// <returns>An ArrayList of good capture moves</returns>
+    public ArrayList GenerateGoodCaptureMoves(Side playerSide) {
+        ArrayList goodCaptureMoves = new ArrayList();
+        ArrayList playerCells = this.board.GetSideCell(playerSide.Type);
         Move move;
-        foreach (string CellName in PlayerCells) {
 
-            if (m_Board[CellName].Piece.GetWeight() > 100) {
-                ArrayList moves = GetLegalMoves(m_Board[CellName]);
+        foreach (string cell in playerCells) {
+            // If the weight is over 100 add its legal moves
+            if (this.board[cell].Piece.GetWeight() > 100) {
+                ArrayList moves = this.GetLegalMoves(board[cell]);
 
                 foreach (Cell dest in moves) {
-
                     if (dest.Piece != null && !dest.Piece.IsEmpty()) {
-                        move = new Move(m_Board[CellName], dest);
-
-                        TotalMoves.Add(move);
+                        move = new Move(board[cell], dest);
+                        goodCaptureMoves.Add(move);
                     }
                 }
             }
         }
-        return TotalMoves;
+        return goodCaptureMoves;
     }
 
+    /// <summary>
+    /// Get all the possible moves from a cell
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <returns>An ArrayList of possible moves</returns>
     public ArrayList GetPossibleMoves(Cell source) {
-        ArrayList LegalMoves = new ArrayList();
+        ArrayList possibleMoves = new ArrayList();
+
         switch (source.Piece.Type) {
             case Piece.PieceType.Empty:
                 break;
-
             case Piece.PieceType.Pawn:
-                GetPawnMoves(source, LegalMoves);
+                this.GetPawnMoves(source, possibleMoves);
                 break;
-
             case Piece.PieceType.Knight:
-                GetKnightMoves(source, LegalMoves);
+                this.GetKnightMoves(source, possibleMoves);
                 break;
-
             case Piece.PieceType.Rook:
-                GetRookMoves(source, LegalMoves);
+                this.GetRookMoves(source, possibleMoves);
                 break;
-
             case Piece.PieceType.Bishop:
-                GetBishopMoves(source, LegalMoves);
+                this.GetBishopMoves(source, possibleMoves);
                 break;
-
             case Piece.PieceType.Queen:
-                GetQueenMoves(source, LegalMoves);
+                this.GetQueenMoves(source, possibleMoves);
                 break;
-
             case Piece.PieceType.King:
-                GetKingMoves(source, LegalMoves);
+                this.GetKingMoves(source, possibleMoves);
                 break;
         }
 
-        return LegalMoves;
+        return possibleMoves;
     }
-    private Move LastMoveWasPawnBegin() {
 
-        Move lastmove = m_Game.GetLastMove();
+    /// <summary>
+    /// Gets the move if the pawn's last move was its first
+    /// </summary>
+    /// <returns>The pawn's last move if it was the first or null</returns>
+    private Move LastMoveWasPawnFirst() {
+        Move lastmove = this.game.GetLastMove();
 
         if (lastmove != null) {
             if (lastmove.Piece.IsPawn() && lastmove.Piece.MoveCount == 1) {
                 return lastmove;
             }
         }
+
         return null;
     }
+
+    /// <summary>
+    /// Get the pawn moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
     private void GetPawnMoves(Cell source, ArrayList moves) {
-        Cell newcell;
+        Cell cell;
 
-        if (source.Piece.Side.isWhite()) {
-
-            newcell = m_Board.TopCell(source);
-            if (newcell != null && newcell.IsEmpty())
-                moves.Add(newcell);
-            if (newcell != null && newcell.IsEmpty()) {
-                newcell = m_Board.TopCell(newcell);
-                if (newcell != null && source.Piece.MoveCount == 0 && newcell.IsEmpty())
-                    moves.Add(newcell);
+        // White
+        if (source.Piece.Side.IsWhite()) {
+            // Top
+            cell = this.board.TopCell(source);
+            if (cell != null && cell.IsEmpty()) {
+                moves.Add(cell);
             }
-            newcell = m_Board.TopLeftCell(source);
-            if (newcell != null && newcell.IsOwnedByEnemy(source))
-                moves.Add(newcell);
-            newcell = m_Board.TopRightCell(source);
-            if (newcell != null && newcell.IsOwnedByEnemy(source))
-                moves.Add(newcell);
-            Move LastPawnMove = LastMoveWasPawnBegin();
 
-            if (LastPawnMove != null) {
-                if (source.Row == LastPawnMove.EndCell.Row) {
-                    if (LastPawnMove.EndCell.Column == source.Column - 1) {
-                        newcell = m_Board.TopLeftCell(source);
-                        if (newcell != null && newcell.IsEmpty())
-                            moves.Add(newcell);
+            // Double first move
+            if (cell != null && cell.IsEmpty()) {
+                cell = board.TopCell(cell);
+                if (cell != null && source.Piece.MoveCount == 0 && cell.IsEmpty()) {
+                    moves.Add(cell);
+                }
+            }
+
+            // Top left
+            cell = board.TopLeftCell(source);
+            if (cell != null && cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
+            }
+
+            // Top right
+            cell = board.TopRightCell(source);
+            if (cell != null && cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
+            }
+
+            // En Passant moves
+            Move lastPawnMove = this.LastMoveWasPawnFirst();
+            if (lastPawnMove != null) {
+                if (source.Row == lastPawnMove.EndCell.Row) {
+                    // Right
+                    if (lastPawnMove.EndCell.Column == source.Column - 1) {
+                        cell = this.board.TopLeftCell(source);
+                        if (cell != null && cell.IsEmpty()) {
+                            moves.Add(cell);
+                        }
                     }
 
-                    if (LastPawnMove.EndCell.Column == source.Column + 1) {
-                        newcell = m_Board.TopRightCell(source);
-                        if (newcell != null && newcell.IsEmpty())
-                            moves.Add(newcell);
+                    // Left
+                    if (lastPawnMove.EndCell.Column == source.Column + 1) {
+                        cell = this.board.TopRightCell(source);
+                        if (cell != null && cell.IsEmpty()) {
+                            moves.Add(cell);
+                        }
                     }
                 }
             }
         } else {
-
-            newcell = m_Board.BottomCell(source);
-            if (newcell != null && newcell.IsEmpty())
-                moves.Add(newcell);
-            if (newcell != null && newcell.IsEmpty()) {
-                newcell = m_Board.BottomCell(newcell);
-                if (newcell != null && source.Piece.MoveCount == 0 && newcell.IsEmpty())
-                    moves.Add(newcell);
+            // Black
+            // Bottom
+            cell = this.board.BottomCell(source);
+            if (cell != null && cell.IsEmpty()) {
+                moves.Add(cell);
             }
-            newcell = m_Board.BottomLeftCell(source);
-            if (newcell != null && newcell.IsOwnedByEnemy(source))
-                moves.Add(newcell);
-            newcell = m_Board.BottomRightCell(source);
-            if (newcell != null && newcell.IsOwnedByEnemy(source))
-                moves.Add(newcell);
-            Move LastPawnMove = LastMoveWasPawnBegin();
 
-            if (LastPawnMove != null) {
-                if (source.Row == LastPawnMove.EndCell.Row) {
-                    if (LastPawnMove.EndCell.Column == source.Column - 1) {
-                        newcell = m_Board.BottomLeftCell(source);
-                        if (newcell != null && newcell.IsEmpty())
-                            moves.Add(newcell);
+            // Double first move
+            if (cell != null && cell.IsEmpty()) {
+                cell = board.BottomCell(cell);
+                if (cell != null && source.Piece.MoveCount == 0 && cell.IsEmpty()) {
+                    moves.Add(cell);
+                }
+            }
+
+            // Bottom left
+            cell = board.BottomLeftCell(source);
+            if (cell != null && cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
+            }
+
+            // Bottom right
+            cell = board.BottomRightCell(source);
+            if (cell != null && cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
+            }
+
+            // En Passant moves
+            Move lastPawnMove = this.LastMoveWasPawnFirst();
+            if (lastPawnMove != null) {
+                if (source.Row == lastPawnMove.EndCell.Row) {
+                    // Right
+                    if (lastPawnMove.EndCell.Column == source.Column - 1) {
+                        cell = this.board.TopLeftCell(source);
+                        if (cell != null && cell.IsEmpty()) {
+                            moves.Add(cell);
+                        }
                     }
 
-                    if (LastPawnMove.EndCell.Column == source.Column + 1) {
-                        newcell = m_Board.BottomRightCell(source);
-                        if (newcell != null && newcell.IsEmpty())
-                            moves.Add(newcell);
+                    // Left
+                    if (lastPawnMove.EndCell.Column == source.Column + 1) {
+                        cell = this.board.TopRightCell(source);
+                        if (cell != null && cell.IsEmpty()) {
+                            moves.Add(cell);
+                        }
                     }
                 }
             }
         }
     }
+
+    /// <summary>
+    /// Get the knight moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
     private void GetKnightMoves(Cell source, ArrayList moves) {
-        Cell newcell;
-        newcell = m_Board.TopCell(source);
-        if (newcell != null) {
-            newcell = m_Board.TopLeftCell(newcell);
+        Cell cell;
+        // Top Top Left and Right
+        cell = this.board.TopCell(source);
+        if (cell != null) {
+            // Top Top Left
+            cell = this.board.TopLeftCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
 
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
-
-            newcell = m_Board.TopCell(source);
-            newcell = m_Board.TopRightCell(newcell);
-
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
+            // Top Top Right
+            cell = this.board.TopCell(source);
+            cell = this.board.TopRightCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
         }
 
-        newcell = m_Board.BottomCell(source);
-        if (newcell != null) {
-            newcell = m_Board.BottomLeftCell(newcell);
+        // Bottom Bototm Left and Right
+        cell = this.board.BottomCell(source);
+        if (cell != null) {
+            // Bottom Bottom Left
+            cell = this.board.BottomLeftCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
 
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
+            // Bottom Bottom Right
+            cell = this.board.BottomCell(source);
+            cell = this.board.BottomRightCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
+        }
+        
+        // Left Left Top and Bottom
+        cell = this.board.LeftCell(source);
+        if (cell != null) {
+            // Left Left Top
+            cell = this.board.TopLeftCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
 
-            newcell = m_Board.BottomCell(source);
-            newcell = m_Board.BottomRightCell(newcell);
-
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
+            // Left Left Bottom
+            cell = this.board.LeftCell(source);
+            cell = this.board.BottomLeftCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
         }
 
-        newcell = m_Board.LeftCell(source);
-        if (newcell != null) {
-            newcell = m_Board.TopLeftCell(newcell);
+        // Right Right Top and Bottom
+        cell = this.board.RightCell(source);
+        if (cell != null) {
+            // Right Right Top
+            cell = this.board.TopRightCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
 
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
-
-            newcell = m_Board.LeftCell(source);
-            newcell = m_Board.BottomLeftCell(newcell);
-
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
-        }
-
-        newcell = m_Board.RightCell(source);
-        if (newcell != null) {
-            newcell = m_Board.TopRightCell(newcell);
-
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
-
-            newcell = m_Board.RightCell(source);
-            newcell = m_Board.BottomRightCell(newcell);
-
-            if (newcell != null && !newcell.IsOwned(source))
-                moves.Add(newcell);
+            // Right Right Bottom
+            cell = this.board.RightCell(source);
+            cell = this.board.BottomRightCell(cell);
+            if (cell != null && !cell.IsOwned(source)) {
+                moves.Add(cell);
+            }
         }
     }
+
+    /// <summary>
+    /// Get rook moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
     private void GetRookMoves(Cell source, ArrayList moves) {
-        Cell newcell;
-        newcell = m_Board.TopCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
+        Cell cell;
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Up
+        cell = this.board.TopCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
-
-            newcell = m_Board.TopCell(newcell);
+            }
+            
+            // Iterate
+            cell = this.board.TopCell(cell);
         }
-        newcell = m_Board.LeftCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Left
+        cell = this.board.LeftCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.LeftCell(newcell);
+            // Iterate
+            cell = this.board.LeftCell(cell);
         }
-        newcell = m_Board.RightCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Right
+        cell = this.board.RightCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.RightCell(newcell);
+            // Iterate
+            cell = this.board.RightCell(cell);
         }
-        newcell = m_Board.BottomCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Down
+        cell = this.board.BottomCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.BottomCell(newcell);
+            // Iterate
+            cell = this.board.BottomCell(cell);
         }
     }
+
+    /// <summary>
+    /// Get bishop moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
     private void GetBishopMoves(Cell source, ArrayList moves) {
-        Cell newcell;
-        newcell = m_Board.TopLeftCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
+        Cell cell;
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Top Left
+        cell = this.board.TopLeftCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.TopLeftCell(newcell);
+            // Iterate
+            cell = this.board.TopLeftCell(cell);
         }
-        newcell = m_Board.TopRightCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Top Right
+        cell = board.TopRightCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.TopRightCell(newcell);
+            // Iterate
+            cell = this.board.TopRightCell(cell);
         }
-        newcell = m_Board.BottomLeftCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Bottom Left
+        cell = board.BottomLeftCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.BottomLeftCell(newcell);
+            // Iterate
+            cell = this.board.BottomLeftCell(cell);
         }
-        newcell = m_Board.BottomRightCell(source);
-        while (newcell != null) {
-            if (newcell.IsEmpty())
-                moves.Add(newcell);
 
-            if (newcell.IsOwnedByEnemy(source)) {
-                moves.Add(newcell);
+        // Bottom Right
+        cell = board.BottomRightCell(source);
+        while (cell != null) {
+            // Add Empty
+            if (cell.IsEmpty()) {
+                moves.Add(cell);
+            }
+
+            // Add Enemy (end)
+            if (cell.IsOwnedByEnemy(source)) {
+                moves.Add(cell);
                 break;
             }
 
-            if (newcell.IsOwned(source))
+            // End Own Cells
+            if (cell.IsOwned(source)) {
                 break;
+            }
 
-            newcell = m_Board.BottomRightCell(newcell);
+            // Iterate
+            cell = this.board.BottomRightCell(cell);
         }
     }
-    private void GetQueenMoves(Cell source, ArrayList moves) {
 
+    /// <summary>
+    /// Get queen moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
+    private void GetQueenMoves(Cell source, ArrayList moves) {
+        // Queen is rook and bishop combined
         GetRookMoves(source, moves);
         GetBishopMoves(source, moves);
     }
+    
+    /// <summary>
+    /// Get king moves
+    /// </summary>
+    /// <param name="source">The source cell</param>
+    /// <param name="moves">The output list of moves</param>
     private void GetKingMoves(Cell source, ArrayList moves) {
-        Cell newcell;
-        newcell = m_Board.TopCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        Cell cell;
+        // Top
+        cell = this.board.TopCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.LeftCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Left
+        cell = this.board.LeftCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.RightCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Right
+        cell = this.board.RightCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.BottomCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Bottom
+        cell = this.board.BottomCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.TopLeftCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Top Left
+        cell = this.board.TopLeftCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.TopRightCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Top Right
+        cell = this.board.TopRightCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.BottomLeftCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
+        // Bottom Left
+        cell = this.board.BottomLeftCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
 
-        newcell = m_Board.BottomRightCell(source);
-        if (newcell != null && !newcell.IsOwned(source))
-            moves.Add(newcell);
-        if (m_Board[source].Piece.MoveCount == 0) {
-            Cell CastlingTarget = null;
-            newcell = m_Board.RightCell(source);
-            if (newcell != null && newcell.IsEmpty()) {
-                if (!CauseCheck(new Move(source, newcell))) {
-                    newcell = m_Board.RightCell(newcell);
-                    if (newcell != null && newcell.IsEmpty()) {
-                        CastlingTarget = newcell;
-                        newcell = m_Board.RightCell(newcell);
-                        if (newcell != null && !newcell.IsEmpty() && newcell.Piece.MoveCount == 0)
-                            moves.Add(CastlingTarget);
+        // Bottom Right
+        cell = this.board.BottomRightCell(source);
+        if (cell != null && !cell.IsOwned(source)) {
+            moves.Add(cell);
+        }
+
+        // Tower Moves
+        if (this.board[source].Piece.MoveCount == 0) {
+            Cell castlingTarget = null;
+            // Right Side
+            cell = this.board.RightCell(source);
+            // The bishop has to be empty
+            if (cell != null && cell.IsEmpty()) {
+                // That cell can't be attacked
+                if (!this.CausesCheck(new Move(source, cell))) {
+                    cell = this.board.RightCell(cell);
+                    // The knight has to be empty
+                    if (cell != null && cell.IsEmpty()) {
+                        castlingTarget = cell;
+                        cell = this.board.RightCell(cell);
+                        // The rook has to be there and unmoved
+                        if (cell != null && !cell.IsEmpty() && cell.Piece.MoveCount == 0) {
+                            moves.Add(castlingTarget);
+                        }
                     }
                 }
             }
-            newcell = m_Board.LeftCell(source);
-            if (newcell != null && newcell.IsEmpty()) {
-                if (!CauseCheck(new Move(source, newcell))) {
-                    newcell = m_Board.LeftCell(newcell);
-                    if (newcell != null && newcell.IsEmpty()) {
-                        CastlingTarget = newcell;
-                        newcell = m_Board.LeftCell(newcell);
-                        if (newcell != null && newcell.IsEmpty()) {
-                            newcell = m_Board.LeftCell(newcell);
-                            if (newcell != null && !newcell.IsEmpty() && newcell.Piece.MoveCount == 0)
-                                moves.Add(CastlingTarget);
+
+            // Left Side
+            cell = board.LeftCell(source);
+            // The queen has to be empty
+            if (cell != null && cell.IsEmpty()) {
+                // That cell can't be attacked
+                if (!CausesCheck(new Move(source, cell))) {
+                    cell = board.LeftCell(cell);
+                    // The bishop has to be empty
+                    if (cell != null && cell.IsEmpty()) {
+                        castlingTarget = cell;
+                        cell = board.LeftCell(cell);
+                        // T he knight has to be empty
+                        if (cell != null && cell.IsEmpty()) {
+                            cell = board.LeftCell(cell);
+                            // The rook has to be there and unmoved
+                            if (cell != null && !cell.IsEmpty() && cell.Piece.MoveCount == 0)
+                                moves.Add(castlingTarget);
                         }
                     }
 
@@ -658,24 +1000,58 @@ public class Rules {
             }
         }
     }
-    public int AnalyzeBoard(Side.SideType PlayerSide) {
-        int Score = 0;
-        ArrayList OwnerCells = m_Board.GetSideCell(PlayerSide);
-        foreach (string ChessCell in OwnerCells) {
-            Score += m_Board[ChessCell].Piece.GetWeight();
+
+    /// <summary>
+    /// Analyze the board score state
+    /// </summary>
+    /// <param name="playerSide">The player side</param>
+    /// <returns>The player board score</returns>
+    public int AnalyzeBoard(Side.SideType playerSide) {
+        int score = 0;
+        ArrayList ownedCells = this.board.GetSideCell(playerSide);
+
+        // Add up the scores of the player cells
+        foreach (string cell in ownedCells) {
+            score += this.board[cell].Piece.GetWeight();
         }
 
-        return Score;
+        return score;
     }
+
+    /// <summary>
+    /// Evaluate the board and player state
+    /// </summary>
+    /// <param name="PlayerSide">The player</param>
+    /// <returns>The score difference</returns>
     public int Evaluate(Side PlayerSide) {
-        int Score = 0;
+        int score = 0;
 
-        Score = AnalyzeBoard(PlayerSide.type) - AnalyzeBoard(PlayerSide.Enemy()) - 25;
+        // Calculate the difference in score
+        score = AnalyzeBoard(PlayerSide.Type) - AnalyzeBoard(PlayerSide.Enemy()) - 25;
 
-        if (IsCheckMate(PlayerSide.Enemy()))
-            Score = 1000000;
+        // Checkmate is infinity score
+        if (IsCheckMate(PlayerSide.Enemy())) {
+            score = int.MaxValue;
+        }
 
-        return Score;
+        return score;
     }
 
+    /// <summary>
+    /// Property for the board
+    /// </summary>
+    public Board Board {
+        get {
+            return board;
+        }
+    }
+
+    /// <summary>
+    /// Property for the game
+    /// </summary>
+    public Game Game {
+        get {
+            return game;
+        }
+    }
 }
